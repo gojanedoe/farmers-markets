@@ -1,6 +1,10 @@
+// TODO:
+// Pull address of each market
+// Check market against google maps opening
+
 // Event listener for page load
 window.addEventListener("load", function () {
-    console.log('Page loaded.');
+    console.log("Page loaded.");
     init();
 });
 
@@ -10,27 +14,38 @@ function init() {
     let zipcode = 20001;
 
     // On submit, use zip code to add to the end of fetch url
-    let fetchURL = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" + zipcode;
+    let fetchURL =
+        "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" +
+        zipcode;
 
     let marketList = document.getElementById("market-list");
 
     fetch(fetchURL).then(function (response) {
         response.json().then(function (json) {
-
-            json.results.forEach(market => {
-                let marketName = market.marketname.slice(market.marketname.indexOf(".") + 3);
-                let milesAway = market.marketname.slice(0, market.marketname.indexOf(".") + 2);
-                let marketURL = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=" + market.id;
+            json.results.forEach((market) => {
+                let marketName = market.marketname.slice(
+                    market.marketname.indexOf(".") + 3
+                );
+                let milesAway = market.marketname.slice(
+                    0,
+                    market.marketname.indexOf(".") + 2
+                );
+                let marketURL =
+                    "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=" +
+                    market.id;
 
                 fetch(marketURL)
-                    .then(response => response.json())
-                    .then(data => {
+                    .then((response) => response.json())
+                    .then((data) => {
                         let schedule = data.marketdetails.Schedule;
                         //console.log(schedule);
 
                         // slice at <br> for each different set of hours
 
-                        let dailyHours = schedule.slice(25, schedule.indexOf(";"));
+                        let dailyHours = schedule.slice(
+                            25,
+                            schedule.indexOf(";")
+                        );
                         let season = schedule.slice(0, 25);
                         let lastUpdated = schedule.slice(6, 10);
 
@@ -55,12 +70,20 @@ function checkOpen(season) {
     let dateTo = season.slice(14, 24);
     let today = new Date().toISOString().slice(0, 10);
 
-    // Remove dashes and other misc characters
+    // Remove dashes and other misc characters (final: YYYYMMDD)
     today = today.split("-").join("");
 
+    // Style dates as YYYYMMDD so they can be compared
     dateFrom = dateFrom.split("/");
-    dateFrom.unshift(dateFrom.pop()); // move last element to front
+    dateFrom.unshift(dateFrom.pop()); // move last element (year) to front
     dateFrom = dateFrom.join("");
+
+    dateTo = dateTo.split("/");
+    dateTo.unshift(dateTo.pop()); // move last element (year) to front
+    dateTo = dateTo.join("");
+
+    // TODO: Change to compare substring for month to see if it falls through months
+    // If it doesn't fall in the year range, return "unsure" and compare just
 
     // if (today > dateFrom && today < dateTo) {
     //     console.log("OPEN");
@@ -72,9 +95,7 @@ function checkOpen(season) {
     // var yyyy = today.getFullYear();
     //today = mm + '/' + dd + '/' + yyyy;
 
-    console.log(today);
-
-    //console.log(dateFrom, dateTo);
+    console.log(dateTo);
 
     // compare date to current date
 
